@@ -1,5 +1,5 @@
 # escape=`
-FROM mcr.microsoft.com/windows/servercore:ltsc2016 as download
+FROM mcr.microsoft.com/windows/servercore:10.0.17763.805 as download
 
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
@@ -28,12 +28,14 @@ RUN mkdir C:\prepare ; `
     cp C:\mongodb-win32-x86_64-2008plus-ssl-$env:MONGO_VERSION\bin\*.exe C:\prepare ; `
     cp C:\mongodb-win32-x86_64-2008plus-ssl-$env:MONGO_VERSION\bin\*.dll C:\prepare
 
-FROM mcr.microsoft.com/windows/servercore:ltsc2016
+FROM mcr.microsoft.com/windows/servercore:10.0.17763.805
 
 COPY --from=download C:\prepare C:\windows\system32
 
 VOLUME C:\data\db
+VOLUME C:\data\configdb
 
 EXPOSE 27017
 
-CMD ["mongod.exe"]
+COPY start.ps1 C:\start.ps1
+CMD powershell C:\start.ps1
